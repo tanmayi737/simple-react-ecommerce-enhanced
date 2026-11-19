@@ -29,7 +29,7 @@ For any inquiries or feedback, feel free to contact [me](mailto:alim1496@gmail.c
 # simple-react-ecommerce-enhanced
 An enhanced React E-commerce storefront featuring localized currency conversion, a price range filter, natural language semantic search, and AI-driven review summaries, built for GDG Featureathon '26.
 
-## ✨ Implemented Features & Enhancements
+## Implemented Features & Enhancements
 * **Localized Currency & Formatting:** Replaced legacy placeholders with dynamic Indian Rupee ($\text{₹}$) formatting and a USD/INR currency toggle.
 * **Price Range Scrollbar:** An interactive budget slider that filters products in real-time.
 * **Natural Language Semantic Search:** Allows users to search using descriptive natural language queries (e.g., *“noise cancelling blue headphones”*).
