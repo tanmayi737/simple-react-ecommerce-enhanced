@@ -1,11 +1,11 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { Product } from "../models/Product";
-import { useAppSelector } from "../redux/hooks";
 import { updateLoading } from "../redux/features/homeSlice";
-import SortProducts from "../components/SortProducts"
+import SortProducts from "../components/SortProducts";
 import PaginatedProducts from "../components/PaginatedProducts";
+import PriceRangeSlider from "../components/PriceRangeSlider";
 import { API_ENDPOINTS } from "../api";
 
 const SingleCategory: FC = () => {
@@ -22,7 +22,7 @@ const SingleCategory: FC = () => {
         .then((res) => res.json())
         .then((data) => {
           const { products } = data;
-          setProductList(products);
+          setProductList(products || []);
           dispatch(updateLoading(false));
         });
     };
@@ -30,26 +30,98 @@ const SingleCategory: FC = () => {
     fetchProducts();
   }, [slug, dispatch]);
 
+  const calculatedMaxPriceUSD = useMemo(() => {
+    if (productList.length === 0) return 2000;
+    const maxVal = Math.max(...productList.map((p) => p.price));
+    return Math.max(Math.ceil(maxVal / 50) * 50, 100);
+  }, [productList]);
+
+  const [maxBudgetUSD, setMaxBudgetUSD] = useState<number>(2000);
+  const [currentSort, setCurrentSort] = useState<string>("default");
+
+  useEffect(() => {
+    if (calculatedMaxPriceUSD > 0) {
+      setMaxBudgetUSD(calculatedMaxPriceUSD);
+    }
+  }, [calculatedMaxPriceUSD]);
+
+  const filteredProducts = useMemo(() => {
+    return productList.filter((product) => {
+      const discount = product.discountPercentage ?? 0;
+      const effectivePriceUSD =
+        product.price - (product.price * discount) / 100;
+      return effectivePriceUSD <= maxBudgetUSD;
+    });
+  }, [productList, maxBudgetUSD]);
+
+  const sortedAndFilteredProducts = useMemo(() => {
+    const sorted = [...filteredProducts];
+    if (currentSort === "asc") {
+      return sorted.sort((a, b) => {
+        const aPrice = a.price - (a.price * (a.discountPercentage ?? 0)) / 100;
+        const bPrice = b.price - (b.price * (b.discountPercentage ?? 0)) / 100;
+        return aPrice - bPrice;
+      });
+    } else if (currentSort === "desc") {
+      return sorted.sort((a, b) => {
+        const aPrice = a.price - (a.price * (a.discountPercentage ?? 0)) / 100;
+        const bPrice = b.price - (b.price * (b.discountPercentage ?? 0)) / 100;
+        return bPrice - aPrice;
+      });
+    }
+    return sorted;
+  }, [filteredProducts, currentSort]);
+
   return (
-    <div className="container mx-auto min-h-[83vh] p-4 font-karla">
-      <div className="flex items-center justify-between space-x-2 text-lg dark:text-white">
-        <div>
-          <button onClick={() => { navigate('/categories') }}>Categories</button>
-          <span> {">"} </span>
-          <span className="font-bold">{slug}</span>
+    <div className="container mx-auto min-h-[83vh] p-4 font-karla space-y-6">
+      {/* Category Header Breadcrumb & Sort */}
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-slate-200/80 dark:border-slate-700/80">
+        <div className="flex items-center gap-2 text-sm sm:text-base text-slate-600 dark:text-slate-300">
+          <button
+            type="button"
+            onClick={() => navigate("/categories")}
+            className="hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
+          >
+            Categories
+          </button>
+          <span>/</span>
+          <span className="font-extrabold capitalize text-slate-900 dark:text-white">
+            {slug?.replace(/-/g, " ")}
+          </span>
         </div>
-        <SortProducts products={productList} onChange={setProductList} />
+
+        <SortProducts
+          products={sortedAndFilteredProducts}
+          onChange={(sorted) => {
+            if (sorted.length >= 2) {
+              const a = sorted[0];
+              const b = sorted[1];
+              const aP = a.price - (a.price * (a.discountPercentage ?? 0)) / 100;
+              const bP = b.price - (b.price * (b.discountPercentage ?? 0)) / 100;
+              if (aP < bP) setCurrentSort("asc");
+              else if (aP > bP) setCurrentSort("desc");
+              else setCurrentSort("default");
+            } else {
+              setCurrentSort("default");
+            }
+          }}
+        />
       </div>
-      {/* {isLoading ? (
-        <div className="flex items-center justify-center">
-          <div className="animate-spin mt-32 rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900 dark:border-white"></div>
-        </div>
-      ) : (<div className="grid gap-4 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 my-2">
-        {productList?.map((product) => (
-          <ProductCard key={product.id} {...product} />
-        ))}
-      </div>)} */}
-      <PaginatedProducts products={productList} isLoading={isLoading} initialRows={5} />
+
+      {/* Tailwind CSS Price Range Slider (Scrollbar) Component above Product Grid */}
+      <PriceRangeSlider
+        maxBudgetUSD={maxBudgetUSD}
+        onBudgetChange={setMaxBudgetUSD}
+        maxPriceUSD={calculatedMaxPriceUSD}
+        totalProductsCount={productList.length}
+        filteredProductsCount={filteredProducts.length}
+      />
+
+      <PaginatedProducts
+        products={sortedAndFilteredProducts}
+        isLoading={isLoading}
+        initialRows={5}
+      />
     </div>
   );
 };

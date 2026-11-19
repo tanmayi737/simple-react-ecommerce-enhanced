@@ -15,9 +15,7 @@ import { MdFavoriteBorder } from "react-icons/md";
 import { addToWishlist } from "../redux/features/productSlice";
 import { updateLoading } from "../redux/features/homeSlice";
 import { API_ENDPOINTS } from "../api";
-
-const lorem =
-  "It is important to take care of the patient, to be followed by the patient, but it will happen at such a time that there is a lot of work and pain. For to come to the smallest detail, no one should practice any kind of work unless he derives some benefit from it. Do not be angry with the pain in the reprimand in the pleasure he wants to be a hair from the pain in the hope that there is no breeding. Unless they are blinded by lust, they do not come forth; they are in fault who abandon their duties and soften their hearts, that is, their labors.";
+import AIProductOverview from "../components/AIProductOverview";
 
 const SingleProduct: FC = () => {
   const dispatch = useAppDispatch();
@@ -126,28 +124,46 @@ const SingleProduct: FC = () => {
 
   return (
     <div className="container mx-auto pt-8 dark:text-white">
-      <button onClick={() => {navigate(-1)}} className="hover:text-gray-600"> ← Back </button>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 px-4 font-karla">
-        <div className="space-y-2">
-          <img src={selectedImg} alt="selected" className="h-80" />
-          <div className="flex space-x-1 items-center">
+      <button onClick={() => {navigate(-1)}} className="hover:text-gray-600 mb-4 inline-flex items-center text-sm font-semibold"> ← Back </button>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-4 font-karla">
+        {/* Left Column: Product Images */}
+        <div className="space-y-4">
+          <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 flex items-center justify-center border border-slate-200/80 dark:border-slate-700/80 min-h-[340px]">
+            <img src={selectedImg} alt={product?.title || "selected"} className="max-h-96 max-w-full object-contain" />
+          </div>
+          <div className="flex space-x-2 items-center overflow-x-auto pb-1">
             {imgs &&
               imgs.map((_img) => (
                 <img
                   src={_img}
                   key={_img}
                   alt="thumb"
-                  className={`w-12 cursor-pointer hover:border-2 hover:border-black ${_img === selectedImg ? "border-2 border-black" : ""
-                    }`}
+                  className={`w-16 h-16 object-contain rounded-lg p-1 bg-slate-50 dark:bg-slate-800 cursor-pointer border-2 transition-all ${
+                    _img === selectedImg
+                      ? "border-blue-600 shadow-sm"
+                      : "border-slate-200 dark:border-slate-700 hover:border-slate-400"
+                  }`}
                   onClick={() => setSelectedImg(_img)}
                 />
               ))}
           </div>
         </div>
-        <div className="px-2">
-          <h2 className="text-2xl">{product?.title}</h2>
-          {product?.rating && <RatingStar rating={product?.rating} />}
-          <div className="mt-1">
+
+        {/* Right Column: Details, Description, AI Overview (ONCE), Purchase Actions */}
+        <div className="space-y-4">
+          <div>
+            <span className="text-xs uppercase tracking-wider font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-md">
+              {product?.category}
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-bold mt-2 text-slate-900 dark:text-white">
+              {product?.title}
+            </h1>
+            <div className="flex items-center gap-2 mt-1">
+              {product?.rating && <RatingStar rating={product?.rating} />}
+            </div>
+          </div>
+
+          <div>
             {product?.discountPercentage && (
               <PriceSection
                 discountPercentage={product?.discountPercentage}
@@ -155,58 +171,70 @@ const SingleProduct: FC = () => {
               />
             )}
           </div>
-          <table className="mt-2">
+
+          <table className="text-sm">
             <tbody>
               <tr>
-                <td className="pr-2 font-bold">Brand</td>
-                <td>{product?.brand}</td>
+                <td className="pr-4 py-0.5 font-bold text-slate-500 dark:text-slate-400">Brand</td>
+                <td className="font-semibold text-slate-800 dark:text-slate-200">{product?.brand}</td>
               </tr>
               <tr>
-                <td className="pr-2 font-bold">Category</td>
-                <td>{product?.category}</td>
-              </tr>
-              <tr>
-                <td className="pr-2 font-bold">Stock</td>
-                <td>{product?.stock}</td>
+                <td className="pr-4 py-0.5 font-bold text-slate-500 dark:text-slate-400">Stock</td>
+                <td className="font-semibold text-slate-800 dark:text-slate-200">{product?.stock} units</td>
               </tr>
             </tbody>
           </table>
-          <div className="mt-2">
-            <h2 className="font-bold">About the product</h2>
-            <p className="leading-5">
-              {product?.description} {lorem}
+
+          {/* About the product - clean description without lorem */}
+          <div className="pt-1">
+            <h2 className="font-bold text-base text-slate-900 dark:text-white">About the product</h2>
+            <p className="leading-6 text-sm text-slate-600 dark:text-slate-300 mt-1">
+              {product?.description}
             </p>
           </div>
-          <div className="flex flex-wrap items-center mt-4 mb-2">
+
+          {/* Single AI Overview Card: Appears only ONCE */}
+          {product && <AIProductOverview product={product} className="mt-2" />}
+
+          {/* Action buttons */}
+          <div className="flex flex-wrap items-center gap-3 pt-3">
             <button
               type="button"
-              className="flex space-x-1 items-center mr-2 mb-2 hover:bg-pink-700 text-white py-2 px-4 rounded bg-pink-500"
+              className="flex space-x-2 items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
               onClick={addCart}
               title="ADD TO CART"
             >
-              <AiOutlineShoppingCart />
+              <AiOutlineShoppingCart className="text-lg" />
+              <span>ADD TO CART</span>
             </button>
             <button
               type="button"
-              className="flex space-x-1 items-center mr-2 mb-2 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700"
+              className="flex space-x-2 items-center bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
               onClick={buyNow}
               title="BUY NOW"
             >
-              <FaHandHoldingDollar />
+              <FaHandHoldingDollar className="text-lg" />
+              <span>BUY NOW</span>
             </button>
             <button
               type="button"
-              className="flex space-x-1 items-center mb-2 bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-700"
+              className="flex space-x-2 items-center border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-white hover:text-rose-500 font-semibold py-2.5 px-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
               onClick={addWishlist}
               title="ADD TO WISHLIST"
             >
-              <MdFavoriteBorder />
+              <MdFavoriteBorder className="text-lg" />
+              <span>ADD TO WISHLIST</span>
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Customer Reviews Section */}
+      <div className="px-4 mt-12 max-w-4xl">
         {product && <Reviews id={product?.id} />}
       </div>
-      <hr className="mt-4" />
+
+      <hr className="mt-8 border-slate-200 dark:border-slate-700" />
       <ProductList title="Similar Products" products={similar} />
       <br />
     </div>

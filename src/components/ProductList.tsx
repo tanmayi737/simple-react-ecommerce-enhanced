@@ -17,16 +17,7 @@ const ProductList: FC<{ title: string; products: Product[] }> = ({
       data-test="product-list-container"
     >
       {products?.map((product) => (
-        <ProductCard
-          key={product.id}
-          id={product.id}
-          category={product.category}
-          title={product.title}
-          price={product.price}
-          thumbnail={product.thumbnail}
-          rating={product.rating}
-          discountPercentage={product.discountPercentage}
-        />
+        <ProductCard key={product.id} {...product} />
       ))}
     </div>
   </div>

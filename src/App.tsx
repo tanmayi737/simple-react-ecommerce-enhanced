@@ -12,6 +12,7 @@ import LoginModal from "./components/LoginModal";
 import Wishlist from "./pages/Wishlist";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
+import OrdersPage from "./pages/OrdersPage";
 import AllProducts from "./pages/AllProducts";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import BannerPopup from "./components/BannerPopup";
@@ -35,6 +36,9 @@ function App() {
         </Route>
         <Route path="/account" element={<ProtectedRoute />}>
           <Route path="/account" element={<Profile />} />
+        </Route>
+        <Route path="/orders" element={<ProtectedRoute />}>
+          <Route path="/orders" element={<OrdersPage />} />
         </Route>
       </Routes>
       <Toaster position="bottom-center" reverseOrder={false} />

@@ -10,6 +10,7 @@ import CustomPopup from "./CustomPopup";
 import { updateDarkMode } from "../redux/features/homeSlice";
 import { MdOutlineDarkMode, MdOutlineLightMode } from "react-icons/md";
 import SearchBar from "./SearchBar";
+import CurrencyToggle from "./CurrencyToggle";
 
 const Navbar: FC = () => {
   const dispatch = useAppDispatch();
@@ -35,211 +36,249 @@ const Navbar: FC = () => {
   };
 
   return (
-    <div className="py-4 bg-white dark:bg-slate-800 top-0 sticky z-10 shadow-lg font-karla">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center">
+    <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-xs font-karla transition-colors duration-200">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex justify-between items-center gap-3">
+          {/* Logo */}
           <Link
             to="/"
-            className="text-4xl font-bold dark:text-white"
+            className="flex items-center gap-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white group flex-shrink-0"
             data-test="main-logo"
           >
-            Shopify
+            <span className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg font-black shadow-xs group-hover:bg-blue-700 transition-colors">
+              S
+            </span>
+            <span className="group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              Shopify
+            </span>
           </Link>
 
-          <div className="hidden sm:block">
+          {/* Desktop Search Bar */}
+          <div className="hidden md:flex flex-1 max-w-md mx-4">
             <SearchBar onSearch={() => setIsMenuOpen(false)} />
           </div>
 
-          <div className="hidden sm:flex gap-4 md:gap-8 items-center dark:text-white">
+          {/* Desktop Navigation Items */}
+          <div className="hidden lg:flex items-center gap-3 xl:gap-5 text-slate-700 dark:text-slate-200">
             <Link
               to="/products"
-              className="text-xl font-bold"
+              className="font-bold text-sm xl:text-base px-3 py-1.5 rounded-xl hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-150"
               data-test="main-products"
             >
               Products
             </Link>
+
             <Link
               to="/categories"
-              className="text-xl font-bold"
+              className="font-bold text-sm xl:text-base px-3 py-1.5 rounded-xl hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-150"
               data-test="main-categories"
             >
               Categories
             </Link>
+
+            {/* Currency Toggle Utility */}
+            <CurrencyToggle showRateBadge />
+
+            {/* User Account / Login */}
             <div className="flex items-center">
               {username !== "" ? (
-                <img
-                  src="https://robohash.org/Terry.png?set=set4"
-                  alt="avatar"
-                  className="w-6"
-                />
-              ) : (
-                <FaUser className="text-gray-500 text-2xl dark:text-white" />
-              )}
-              <div className="text-gray-500 text-2xl">
-                {username !== "" ? (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                  <img
+                    src="https://robohash.org/Terry.png?set=set4"
+                    alt="avatar"
+                    className="w-6 h-6 rounded-full"
+                  />
                   <CustomPopup />
-                ) : (
-                  <span
-                    className="cursor-pointer hover:opacity-85 dark:text-white"
-                    onClick={() => dispatch(updateModal(true))}
-                    data-test="login-btn"
-                  >
-                  </span>
-                )}
-              </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => dispatch(updateModal(true))}
+                  className="flex items-center gap-1.5 font-bold text-sm px-3 py-1.5 rounded-xl hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-150 cursor-pointer"
+                  data-test="login-btn"
+                >
+                  <FaUser className="text-slate-500 dark:text-slate-400 text-sm" />
+                  <span>Login</span>
+                </button>
+              )}
             </div>
-            <div
-              className="text-gray-500 text-[32px] relative hover:cursor-pointer hover:opacity-80"
+
+            {/* Cart Button */}
+            <button
+              type="button"
+              className="relative p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-150 cursor-pointer"
               onClick={showCart}
               data-test="cart-btn"
+              aria-label="Open shopping cart"
             >
-              <AiOutlineShoppingCart className="dark:text-white" />
+              <AiOutlineShoppingCart className="text-2xl" />
               <div
-                className="absolute top-[-15px] right-[-10px] bg-red-600 w-[25px] h-[25px] rounded-full text-white text-[14px] grid place-items-center"
+                className="absolute -top-1 -right-1 bg-rose-600 text-white text-[11px] font-extrabold h-5 min-w-[20px] px-1 rounded-full grid place-items-center shadow-xs"
                 data-test="cart-item-count"
               >
                 {cartCount}
               </div>
-            </div>
-            <div onClick={toggleTheme}>
+            </button>
+
+            {/* Dark Mode Toggle */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-150 cursor-pointer"
+              aria-label="Toggle dark mode"
+            >
               {isDarkMode ? (
-                <MdOutlineLightMode className="cursor-pointer" size={30} />
+                <MdOutlineLightMode className="text-2xl text-amber-400" />
               ) : (
-                <MdOutlineDarkMode className="cursor-pointer" size={30} />
+                <MdOutlineDarkMode className="text-2xl text-slate-700" />
               )}
-            </div>
+            </button>
           </div>
 
-          <button
-            className="sm:hidden text-3xl dark:text-white relative z-30"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            <div className="w-6 h-5 flex flex-col justify-between">
-              <span
-                className={`block h-0.5 bg-current transform transition-all duration-300 ${
-                  isMenuOpen ? "rotate-45 translate-y-2" : ""
-                }`}
-              ></span>
-              <span
-                className={`block h-0.5 bg-current transition-all duration-300 ${
-                  isMenuOpen ? "opacity-0" : ""
-                }`}
-              ></span>
-              <span
-                className={`block h-0.5 bg-current transform transition-all duration-300 ${
-                  isMenuOpen ? "-rotate-45 -translate-y-2" : ""
-                }`}
-              ></span>
-            </div>
-          </button>
+          {/* Tablet/Mobile Fast Actions */}
+          <div className="flex lg:hidden items-center gap-2">
+            <CurrencyToggle className="hidden sm:flex" />
+
+            <button
+              type="button"
+              className="relative p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+              onClick={showCart}
+              data-test="cart-btn"
+              aria-label="Open cart"
+            >
+              <AiOutlineShoppingCart className="text-2xl" />
+              <div
+                className="absolute -top-1 -right-1 bg-rose-600 text-white text-[11px] font-bold h-5 min-w-[20px] px-1 rounded-full grid place-items-center"
+                data-test="cart-item-count"
+              >
+                {cartCount}
+              </div>
+            </button>
+
+            {/* Mobile Hamburger Button */}
+            <button
+              type="button"
+              className="p-2 rounded-xl text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 relative z-30"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle navigation menu"
+            >
+              <div className="w-5 h-4 flex flex-col justify-between">
+                <span
+                  className={`block h-0.5 bg-current transform transition-all duration-300 ${
+                    isMenuOpen ? "rotate-45 translate-y-1.5" : ""
+                  }`}
+                />
+                <span
+                  className={`block h-0.5 bg-current transition-all duration-300 ${
+                    isMenuOpen ? "opacity-0" : ""
+                  }`}
+                />
+                <span
+                  className={`block h-0.5 bg-current transform transition-all duration-300 ${
+                    isMenuOpen ? "-rotate-45 -translate-y-1.5" : ""
+                  }`}
+                />
+              </div>
+            </button>
+          </div>
         </div>
 
+        {/* Mobile Dropdown / Drawer Menu */}
         {isMenuOpen && (
-          <div className="sm:hidden fixed inset-0 top-0 bg-black bg-opacity-50 z-20">
-            <div className="absolute top-4 right-4 z-30">
-              <button
-                className="text-3xl text-white"
-                onClick={() => setIsMenuOpen(false)}
-                aria-label="Close menu"
-              >
-                <div className="w-6 h-5 flex flex-col justify-between">
-                  <span className="block h-0.5 bg-current rotate-45 translate-y-2"></span>
-                  <span className="block h-0.5 bg-current opacity-0"></span>
-                  <span className="block h-0.5 bg-current -rotate-45 -translate-y-2"></span>
-                </div>
-              </button>
-            </div>
-            <div className="bg-white dark:bg-slate-800 bg-opacity-95 dark:bg-opacity-95 h-full flex flex-col items-center justify-center gap-8 px-4 pt-20">
-              <div className="w-full max-w-md">
+          <div className="lg:hidden fixed inset-0 top-[61px] bg-black/50 backdrop-blur-xs z-30 animate-fade-in">
+            <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-6 space-y-5 shadow-2xl">
+              <div>
                 <SearchBar onSearch={() => setIsMenuOpen(false)} />
               </div>
 
-              <Link
-                to="/products"
-                className="text-2xl font-bold dark:text-white hover:opacity-80"
-                data-test="main-products"
-                onClick={handleLinkClick}
-              >
-                Products
-              </Link>
+              <div className="flex items-center justify-between py-2 border-y border-slate-100 dark:border-slate-800">
+                <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+                  Select Currency:
+                </span>
+                <CurrencyToggle showRateBadge />
+              </div>
 
-              <Link
-                to="/categories"
-                className="text-2xl font-bold dark:text-white hover:opacity-80"
-                data-test="main-categories"
-                onClick={handleLinkClick}
-              >
-                Categories
-              </Link>
+              <nav className="flex flex-col gap-3 font-semibold text-lg text-slate-800 dark:text-slate-100">
+                <Link
+                  to="/products"
+                  className="px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  data-test="main-products"
+                  onClick={handleLinkClick}
+                >
+                  Products
+                </Link>
 
-              <div className="flex items-center gap-3">
-                {username !== "" ? (
-                  <img
-                    src="https://robohash.org/Terry.png?set=set4"
-                    alt="avatar"
-                    className="w-8"
-                  />
-                ) : (
-                  <FaUser className="text-gray-500 text-3xl dark:text-white" />
-                )}
-                <div className="text-2xl font-bold dark:text-white">
+                <Link
+                  to="/categories"
+                  className="px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  data-test="main-categories"
+                  onClick={handleLinkClick}
+                >
+                  Categories
+                </Link>
+
+                <Link
+                  to="/orders"
+                  className="px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  onClick={handleLinkClick}
+                >
+                  Order History
+                </Link>
+              </nav>
+
+              <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2">
                   {username !== "" ? (
-                    <CustomPopup />
+                    <div className="flex items-center gap-2">
+                      <img
+                        src="https://robohash.org/Terry.png?set=set4"
+                        alt="avatar"
+                        className="w-7 h-7 rounded-full"
+                      />
+                      <CustomPopup />
+                    </div>
                   ) : (
-                    <span
-                      className="cursor-pointer hover:opacity-85"
+                    <button
+                      type="button"
+                      className="flex items-center gap-2 text-base font-bold text-slate-800 dark:text-white hover:text-blue-600"
                       onClick={() => {
                         dispatch(updateModal(true));
                         setIsMenuOpen(false);
                       }}
                       data-test="login-btn"
                     >
-                      Profile
-                    </span>
+                      <FaUser className="text-slate-500 text-sm" />
+                      <span>Profile / Login</span>
+                    </button>
                   )}
                 </div>
-              </div>
 
-              <div
-                className="flex items-center gap-3 cursor-pointer hover:opacity-80"
-                onClick={() => {
-                  showCart();
-                  setIsMenuOpen(false);
-                }}
-                data-test="cart-btn"
-              >
-                <div className="relative">
-                  <AiOutlineShoppingCart className="text-3xl dark:text-white" />
-                  <div
-                    className="absolute top-[-10px] right-[-10px] bg-red-600 w-[20px] h-[20px] rounded-full text-white text-[12px] grid place-items-center"
-                    data-test="cart-item-count"
-                  >
-                    {cartCount}
-                  </div>
-                </div>
-                <span className="text-2xl font-bold dark:text-white">Cart</span>
-              </div>
-
-              <div
-                className="flex items-center gap-3 cursor-pointer hover:opacity-80"
-                onClick={() => {
-                  toggleTheme();
-                  setIsMenuOpen(false);
-                }}
-              >
-                {isDarkMode ? (
-                  <MdOutlineLightMode className="text-3xl dark:text-white" />
-                ) : (
-                  <MdOutlineDarkMode className="text-3xl dark:text-white" />
-                )}
-                <span className="text-2xl font-bold dark:text-white">Theme</span>
+                <button
+                  type="button"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-200"
+                  onClick={() => {
+                    toggleTheme();
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  {isDarkMode ? (
+                    <>
+                      <MdOutlineLightMode className="text-amber-400 text-lg" />
+                      <span>Light</span>
+                    </>
+                  ) : (
+                    <>
+                      <MdOutlineDarkMode className="text-slate-700 text-lg" />
+                      <span>Dark</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>
         )}
       </div>
-    </div>
+    </header>
   );
 };
 

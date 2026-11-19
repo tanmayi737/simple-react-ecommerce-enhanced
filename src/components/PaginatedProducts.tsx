@@ -63,7 +63,7 @@ const PaginatedProducts: FC<Props> = ({ products, isLoading, initialRows = 5 }) 
                         <div className="flex justify-center mt-6">
                             <button
                                 onClick={() => setRowsToShow((r) => r + initialRows)}
-                                className="px-4 py-2 rounded-md border dark:border-neutral-700 dark:text-white hover:shadow"
+                                className="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-white font-semibold hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 shadow-xs hover:shadow transition-all duration-200"
                             >
                                 View more
                             </button>
